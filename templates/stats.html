@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Message Statistics</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8fafc, #e9ecef);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 50px;
+            max-width: 900px;
+        }
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            background-color: #fff;
+        }
+        h1, h2 {
+            color: #343a40;
+        }
+        .btn-custom {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+        }
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+        .table thead th {
+            background-color: #343a40;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="card">
+        <h1 class="text-center mb-4">Message Statistics by Topic</h1>
+        <form method="get" action="/stats" class="row g-3">
+            <div class="col-md-4">
+                <label for="start_date" class="form-label">Start Date:</label>
+                <input type="date" id="start_date" name="start_date" class="form-control" value="{{ start_date or '' }}">
+            </div>
+            <div class="col-md-4">
+                <label for="end_date" class="form-label">End Date:</label>
+                <input type="date" id="end_date" name="end_date" class="form-control" value="{{ end_date or '' }}">
+            </div>
+            <div class="col-md-4">
+                <label for="topic_name" class="form-label">Topic:</label>
+                <select id="topic_name" name="topic_name" class="form-select">
+                    <option value="">--Select Topic--</option>
+                    {% for topic in topics %}
+                        <option value="{{ topic }}" {% if topic == selected_topic %}selected{% endif %}>{{ topic }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 text-center">
+                <button type="submit" class="btn btn-custom mt-3">Get Statistics</button>
+            </div>
+        </form>
+
+        {% if results %}
+            <h2 class="mt-5">Results:</h2>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered mt-3">
+                    <thead>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Username</th>
+                        <th>Message Count</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for sender_first_name, sender_last_name, username, message_count in results %}
+                    <tr>
+                        <td>{{ sender_first_name }}</td>
+                        <td>{{ sender_last_name }}</td>
+                        <td>{{ username }}</td>
+                        <td>{{ message_count }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="text-center mt-4">
+                <a href="/stats/export?start_date={{ start_date }}&end_date={{ end_date }}&topic_name={{ selected_topic }}">
+                    <button type="button" class="btn btn-success">Save as Excel</button>
+                </a>
+            </div>
+        {% else %}
+            <p class="mt-4 text-center">No records found for the given criteria.</p>
+        {% endif %}
+    </div>
+</div>
+<!-- Bootstrap JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
