@@ -42,6 +42,11 @@ async def telegram_webhook(request: Request):
         if "forum_topic_created" in message:
             forum_topic = message["forum_topic_created"]
             topic_name = forum_topic.get("name", None)
+        elif "reply_to_message" in message and "forum_topic_created" in message["reply_to_message"]:
+            forum_topic = message["reply_to_message"]["forum_topic_created"]
+            topic_name = forum_topic.get("name", None)
+
+    session = sync_session_maker()
 
     try:
         telegram_message = TelegramMessage(
@@ -53,13 +58,13 @@ async def telegram_webhook(request: Request):
             topic_name=topic_name,
             update_data=json.dumps(data)
         )
-        sync_session_maker.add(telegram_message)
-        sync_session_maker.commit()
+        session.add(telegram_message)
+        session.commit()
     except Exception as e:
-        sync_session_maker.rollback()
+        session.rollback()
         print("Error saving message:", e)
     finally:
-        sync_session_maker.close()
+        session.close()
 
     return {"ok": True}
 
